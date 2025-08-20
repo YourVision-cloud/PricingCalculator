@@ -1,0 +1,166 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Wholesale Pricing Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto Mono', monospace;
+      background-color: #ffffff;
+      color: #000000;
+      padding: 2rem;
+      max-width: 900px;
+      margin: auto;
+    }
+    h1 {
+      color: #CA0000;
+      border-bottom: 2px solid #CA0000;
+      padding-bottom: 0.5rem;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    textarea {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.25rem;
+      font-family: 'Roboto Mono', monospace;
+      border: 1px solid #000000;
+    }
+    .two-columns {
+      display: flex;
+      gap: 1rem;
+    }
+    .two-columns > div {
+      flex: 1;
+    }
+    .result {
+      background-color: #000000;
+      color: #ffffff;
+      padding: 1rem;
+      margin-top: 2rem;
+    }
+    .result strong {
+      color: #CA0000;
+    }
+    hr {
+      margin: 2rem 0;
+      border: none;
+      border-top: 1px solid #000000;
+    }
+  </style>
+</head>
+<body>
+  <h1>Wholesale Pricing Calculator</h1>
+  <label>Client Name</label>
+  <input type="text" id="clientName">
+
+  <label>Job Name or ID</label>
+  <input type="text" id="jobName">
+
+  <label>Date</label>
+  <input type="date" id="jobDate">
+
+  <label>Notes</label>
+  <textarea id="notes"></textarea>
+
+  <label>Quantity</label>
+  <input type="number" id="quantity" value="1" oninput="recalculate()">
+
+  <hr>
+  <div class="two-columns">
+    <div>
+      <label>Blank Garment (per unit)</label>
+      <input type="number" id="blankGarment" oninput="recalculate()">
+      
+      <label>Printing Cost (per unit)</label>
+      <input type="number" id="printingCost" oninput="recalculate()">
+
+      <label>Setup Fee (total)</label>
+      <input type="number" id="setupFee" oninput="recalculate()">
+
+      <label>Shipping Cost (total)</label>
+      <input type="number" id="shippingCost" oninput="recalculate()">
+
+      <label>Markup Percentage (%)</label>
+      <input type="number" id="markupPercent" oninput="recalculate()">
+
+      <label>Flat Profit Goal ($)</label>
+      <input type="number" id="flatProfit" oninput="recalculate()">
+    </div>
+    <div>
+      <label>Open Per-Product Cost 1</label>
+      <input type="number" id="ppCost1" oninput="recalculate()">
+
+      <label>Open Per-Product Cost 2</label>
+      <input type="number" id="ppCost2" oninput="recalculate()">
+
+      <label>Open Per-Product Cost 3</label>
+      <input type="number" id="ppCost3" oninput="recalculate()">
+
+      <label>Open Total Cost 1</label>
+      <input type="number" id="tCost1" oninput="recalculate()">
+
+      <label>Open Total Cost 2</label>
+      <input type="number" id="tCost2" oninput="recalculate()">
+    </div>
+  </div>
+
+  <div class="result">
+    <p><strong>Total Cost of Goods:</strong> $<span id="totalCost">0.00</span></p>
+    <p><strong>Per Unit Cost:</strong> $<span id="perUnitCost">0.00</span></p>
+    <p><strong>Markup Amount (total):</strong> $<span id="markupTotal">0.00</span></p>
+    <p><strong>Markup Amount (per unit):</strong> $<span id="markupPerUnit">0.00</span></p>
+    <p><strong>Flat Profit (per unit):</strong> $<span id="profitPerUnit">0.00</span></p>
+    <p><strong>Reverse Markup % (flat only):</strong> <span id="reverseMarkup">0.00</span>%</p>
+    <hr>
+    <p><strong>Suggested Price (total):</strong> $<span id="suggestedTotal">0.00</span></p>
+    <p><strong>Suggested Price (per unit):</strong> $<span id="suggestedPer">0.00</span></p>
+  </div>
+
+  <script>
+    function recalculate() {
+      const q = parseFloat(document.getElementById('quantity').value) || 1;
+      const b = parseFloat(document.getElementById('blankGarment').value) || 0;
+      const p = parseFloat(document.getElementById('printingCost').value) || 0;
+      const s = parseFloat(document.getElementById('setupFee').value) || 0;
+      const sh = parseFloat(document.getElementById('shippingCost').value) || 0;
+      const pp1 = parseFloat(document.getElementById('ppCost1').value) || 0;
+      const pp2 = parseFloat(document.getElementById('ppCost2').value) || 0;
+      const pp3 = parseFloat(document.getElementById('ppCost3').value) || 0;
+      const t1 = parseFloat(document.getElementById('tCost1').value) || 0;
+      const t2 = parseFloat(document.getElementById('tCost2').value) || 0;
+      const m = parseFloat(document.getElementById('markupPercent').value) || 0;
+      const f = parseFloat(document.getElementById('flatProfit').value) || 0;
+
+      const unitCosts = b + p + pp1 + pp2 + pp3;
+      const totalFromUnits = unitCosts * q;
+      const totalOther = s + sh + t1 + t2;
+      const total = totalFromUnits + totalOther;
+      const perUnit = total / q;
+      const markupTotal = (m / 100) * total;
+      const markupPerUnit = markupTotal / q;
+      const profitPerUnit = f / q;
+      const reverseMarkup = total ? (f / total) * 100 : 0;
+      const suggestedTotal = total + markupTotal + f;
+      const suggestedPer = suggestedTotal / q;
+
+      document.getElementById('totalCost').innerText = total.toFixed(2);
+      document.getElementById('perUnitCost').innerText = perUnit.toFixed(2);
+      document.getElementById('markupTotal').innerText = markupTotal.toFixed(2);
+      document.getElementById('markupPerUnit').innerText = markupPerUnit.toFixed(2);
+      document.getElementById('profitPerUnit').innerText = profitPerUnit.toFixed(2);
+      document.getElementById('reverseMarkup').innerText = reverseMarkup.toFixed(2);
+      document.getElementById('suggestedTotal').innerText = suggestedTotal.toFixed(2);
+      document.getElementById('suggestedPer').innerText = suggestedPer.toFixed(2);
+    }
+  </script>
+</body>
+</html>
